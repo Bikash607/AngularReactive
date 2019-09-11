@@ -4,7 +4,7 @@
       <h3 class="panel-title">Create Employee</h3>
     </div>
     <div class="panel-body">
-      <div class="form-group">
+      <div class="form-group" [ngClass]="{'has-error': employeeForm.get('fullName').errors && employeeForm.get('fullName').touched}">
         <label class="col-sm-2 control-label" for="fullName">Full Name</label>
         <div class="col-sm-8">
           <input type="text" class="form-control" formControlName="fullName" id="fullName">
@@ -13,12 +13,41 @@
       <div class="form-group">
         <label class="col-sm-2 control-label" for="email">Email</label>
         <div class="col-sm-8">
-          <input type="text" class="form-control"  formControlName="email" id="email">
+          <input type="text" class="form-control" formControlName="email" id="email">
+        </div>
+      </div>
+      <div formGroupName="skills">
+        <div class="form-group">
+          <label class="col-sm-2 control-label" for="skillName">Skills</label>
+          <div class="col-sm-4">
+            <input type="text" placeholder="Name" id="skillName" formControlName="skillName" class="form-control" />
+          </div>
+          <div class="col-sm-4">
+            <input type="text" placeholder="Experience in Year" id="experienceInYears" formControlName="experienceInYears" class="form-control" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-md-2 control-label">Proficiency</label>
+          <div class="col-md-8">
+            <label class="radio-inline">
+              <input type="radio" id="proficiency" value="beginer" formControlName="proficiency">Beginer
+            </label>
+            <label class="radio-inline">
+              <input type="radio" id="proficiency" value="intermediate" formControlName="proficiency">Intermediate
+            </label>
+            <label class="radio-inline">
+              <input type="radio" id="proficiency" value="advanced" formControlName="proficiency">Advanced
+            </label>
+          </div>
         </div>
       </div>
     </div>
     <div class="panel-footer">
-      <button type="submit" class="btn btn-primary">Save</button>
+      <div class="btn-toolbar">
+          <button type="submit" class="btn btn-primary">Save</button>
+          <button type="button" class="btn btn-primary" (click)="onLoadDataClick()">Load Data</button>
+          <button type="button" class="btn btn-primary" (click)="onDisableClick()">Disable</button>
+      </div>
     </div>
   </div>
 </form>
