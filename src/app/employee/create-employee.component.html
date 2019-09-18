@@ -4,49 +4,92 @@
       <h3 class="panel-title">Create Employee</h3>
     </div>
     <div class="panel-body">
-      <div class="form-group" [ngClass]="{'has-error': employeeForm.get('fullName').errors && employeeForm.get('fullName').touched}">
+      <div class="form-group" [ngClass]="{'has-error': formErrors.fullName}">
         <label class="col-sm-2 control-label" for="fullName">Full Name</label>
         <div class="col-sm-8">
-          <input type="text" class="form-control" formControlName="fullName" id="fullName">
+          <input type="text" class="form-control" formControlName="fullName" id="fullName"
+            (blur)="logValidationErrors()">
+          <span class="help-block" *ngIf="formErrors.fullName">
+            {{formErrors.fullName}}
+          </span>
         </div>
       </div>
       <div class="form-group">
+          <label class="col-md-2 control-label">Contact Prefeence</label>
+          <div class="col-md-8">
+              <label class="radio-inline">
+                  <input type="radio" id="contactPreference" value="email" formControlName="contactPreference">Email
+                </label>
+                <label class="radio-inline">
+                  <input type="radio" id="contactPreference" value="phone" formControlName="contactPreference">Phone
+                </label>
+          </div>
+      </div>
+      <div class="form-group" [ngClass]="{'has-error': formErrors.email}">
         <label class="col-sm-2 control-label" for="email">Email</label>
         <div class="col-sm-8">
-          <input type="text" class="form-control" formControlName="email" id="email">
+          <input type="text" class="form-control" formControlName="email" id="email" (blur)="logValidationErrors()">
+          <span class="help-block" *ngIf="formErrors.email">
+            {{formErrors.email}}
+          </span>
         </div>
       </div>
-      <div formGroupName="skills">
-        <div class="form-group">
-          <label class="col-sm-2 control-label" for="skillName">Skills</label>
-          <div class="col-sm-4">
-            <input type="text" placeholder="Name" id="skillName" formControlName="skillName" class="form-control" />
-          </div>
-          <div class="col-sm-4">
-            <input type="text" placeholder="Experience in Year" id="experienceInYears" formControlName="experienceInYears" class="form-control" />
+      <div class="form-group" [ngClass]="{'has-error': formErrors.phone}">
+          <label class="col-sm-2 control-label" for="phone">Phone</label>
+          <div class="col-sm-8">
+            <input type="text" class="form-control" formControlName="phone" id="phone" (blur)="logValidationErrors()">
+            <span class="help-block" *ngIf="formErrors.phone">
+              {{formErrors.phone}}
+            </span>
           </div>
         </div>
-        <div class="form-group">
-          <label class="col-md-2 control-label">Proficiency</label>
-          <div class="col-md-8">
-            <label class="radio-inline">
-              <input type="radio" id="proficiency" value="beginer" formControlName="proficiency">Beginer
-            </label>
-            <label class="radio-inline">
-              <input type="radio" id="proficiency" value="intermediate" formControlName="proficiency">Intermediate
-            </label>
-            <label class="radio-inline">
-              <input type="radio" id="proficiency" value="advanced" formControlName="proficiency">Advanced
-            </label>
+      <div class="well">
+        <div formGroupName="skills">
+          <div class="form-group" [ngClass]="{'has-error': formErrors.skillName}">
+            <label class="col-sm-2 control-label" for="skillName">Skills</label>
+            <div class="col-sm-4">
+              <input type="text" placeholder="Name" id="skillName" formControlName="skillName" class="form-control"
+                (blur)="logValidationErrors()" />
+              <span class="help-block" *ngIf="formErrors.skillName">
+                {{formErrors.skillName}}
+              </span>
+            </div>
+          </div>
+          <div class="form-group" [ngClass]="{'has-error': formErrors.experienceInYears}">
+            <label class="col-sm-2 control-label" for="experienceInYears">Experience</label>
+            <div class="col-sm-4">
+              <input type="text" placeholder="Experience in Year" id="experienceInYears"
+                formControlName="experienceInYears" class="form-control" (blur)="logValidationErrors()" />
+              <span class="help-block" *ngIf="formErrors.experienceInYears">
+                {{formErrors.experienceInYears}}
+              </span>
+            </div>
+          </div>
+          <div class="form-group" [ngClass]="{'has-error': formErrors.proficiency}">
+            <label class="col-md-2 control-label">Proficiency</label>
+            <div class="col-md-8">
+              <label class="radio-inline">
+                <input type="radio" id="proficiency" value="beginer" formControlName="proficiency" (blur)="logValidationErrors()">Beginer
+              </label>
+              <label class="radio-inline">
+                <input type="radio" id="proficiency" value="intermediate" formControlName="proficiency" (blur)="logValidationErrors()">Intermediate
+              </label>
+              <label class="radio-inline">
+                <input type="radio" id="proficiency" value="advanced" formControlName="proficiency" (blur)="logValidationErrors()">Advanced
+              </label>
+              <span class="help-block" *ngIf="formErrors.proficiency">
+                {{formErrors.proficiency}}
+              </span>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <div class="panel-footer">
       <div class="btn-toolbar">
-          <button type="submit" class="btn btn-primary">Save</button>
-          <button type="button" class="btn btn-primary" (click)="onLoadDataClick()">Load Data</button>
-          <button type="button" class="btn btn-primary" (click)="onDisableClick()">Disable</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-primary" (click)="onLoadDataClick()">Load Data</button>
+        <button type="button" class="btn btn-primary" (click)="onDisableClick()">Disable</button>
       </div>
     </div>
   </div>

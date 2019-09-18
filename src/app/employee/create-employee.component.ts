@@ -9,6 +9,38 @@ import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms'
 export class CreateEmployeeComponent implements OnInit {
 
   employeeForm: FormGroup;
+  validationMessages = {
+    fullName : {
+      required : 'Full Name is required.',
+      minlength : 'Full Name must be greater than 2 characters.',
+      maxlength : 'Full Name must be less than 10 characters.'
+    },
+    email : {
+      required : 'Email is required.'
+    },
+    phone : {
+      required : 'Phone is required.'
+    },
+    skillName : {
+      required : 'Skill Name is required.'
+    },
+    experienceInYears : {
+      required : 'Experience is required.'
+    },
+    proficiency : {
+      required : 'Proficiency is required.'
+    }
+  };
+
+  formErrors = {
+    fullName : '',
+    email : '',
+    phone : '',
+    skillName : '',
+    experienceInYears : '',
+    proficiency : ''
+  };
+
   constructor(private fb: FormBuilder) { }
 
   ngOnInit() {
@@ -23,13 +55,26 @@ export class CreateEmployeeComponent implements OnInit {
     });*/
     // formBuilder is a predefied service used to create form group and control
     this.employeeForm = this.fb.group({
-      fullName: ['', Validators.required],
-      email: [''],
+      fullName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(10)]],
+      contactPreference: ['email'],
+      email: ['', Validators.required],
+      phone: [''],
       skills: this.fb.group({
-        skillName: [''],
-        experienceInYears: [''],
-        proficiency:['intermediate']
+        skillName: ['', Validators.required],
+        experienceInYears: ['', Validators.required],
+        proficiency: ['', Validators.required]
       })
+    });
+
+    this.employeeForm.get('fullName').valueChanges.subscribe( value => {
+      console.log(value);
+    });
+    this.employeeForm.valueChanges.subscribe( data => {
+     this.logValidationErrors(this.employeeForm);
+    });
+
+    this.employeeForm.get('contactPreference').valueChanges.subscribe((data: string) => {
+      this.onContactPreferenceChange(data);
     });
   }
 
@@ -60,9 +105,9 @@ export class CreateEmployeeComponent implements OnInit {
   }
 
   logKeyValuePair(group: FormGroup) {
-    Object.keys(group.controls).forEach((key: string) =>{
+    Object.keys(group.controls).forEach((key: string) => {
       const abstractControl = group.get(key);
-      if( abstractControl instanceof FormGroup) {
+      if ( abstractControl instanceof FormGroup) {
         this.logKeyValuePair(abstractControl);
       } else {
         console.log('key = ' + key + ', value = ' + abstractControl.value);
@@ -70,7 +115,38 @@ export class CreateEmployeeComponent implements OnInit {
     });
   }
 
+  logValidationErrors(group: FormGroup = this.employeeForm) {
+    Object.keys(group.controls).forEach((key: string) => {
+      const abstractControl = group.get(key);
+      if (abstractControl instanceof FormGroup) {
+        this.logValidationErrors(abstractControl);
+      } else {
+        this.formErrors[key] = '';
+        if (abstractControl && !abstractControl.valid && (abstractControl.touched || abstractControl.dirty)) {
+          const messages = this.validationMessages[key];
+          for (const errrorKey in abstractControl.errors) {
+            if (errrorKey) {
+              this.formErrors[key] += messages[errrorKey] + ' ';
+            }
+          }
+        }
+      }
+    });
+  }
+
   onDisableClick()  {
     this.employeeForm.disable();
+  }
+
+  // dynamically add validators to form control.
+  onContactPreferenceChange(selectedValue: string) {
+    const phoneControl = this.employeeForm.get('phone');
+    if (selectedValue === 'phone') {
+      phoneControl.setValidators([Validators.required]);
+    } else {
+      phoneControl.clearValidators();
+    }
+
+    phoneControl.updateValueAndValidity();  // used to triger validation on control
   }
 }
