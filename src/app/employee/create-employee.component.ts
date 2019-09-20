@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { CustoValidators } from '../shared/custom.validators';
 
 @Component({
   selector: 'app-create-employee',
@@ -10,35 +11,44 @@ export class CreateEmployeeComponent implements OnInit {
 
   employeeForm: FormGroup;
   validationMessages = {
-    fullName : {
-      required : 'Full Name is required.',
-      minlength : 'Full Name must be greater than 2 characters.',
-      maxlength : 'Full Name must be less than 10 characters.'
+    fullName: {
+      required: 'Full Name is required.',
+      minlength: 'Full Name must be greater than 2 characters.',
+      maxlength: 'Full Name must be less than 10 characters.'
     },
-    email : {
-      required : 'Email is required.'
+    email: {
+      required: 'Email is required.',
+      emailDomain: 'Email Domain should be pragimtech.com'
     },
-    phone : {
-      required : 'Phone is required.'
+    confirmEmail: {
+      required: 'Confirm Email is required.',
     },
-    skillName : {
-      required : 'Skill Name is required.'
+    phone: {
+      required: 'Phone is required.'
     },
-    experienceInYears : {
-      required : 'Experience is required.'
+    emailGroup: {
+      emailMismatch: 'Email and Confirm Email does not Match'
     },
-    proficiency : {
-      required : 'Proficiency is required.'
+    skillName: {
+      required: 'Skill Name is required.'
+    },
+    experienceInYears: {
+      required: 'Experience is required.'
+    },
+    proficiency: {
+      required: 'Proficiency is required.'
     }
   };
 
   formErrors = {
-    fullName : '',
-    email : '',
-    phone : '',
-    skillName : '',
-    experienceInYears : '',
-    proficiency : ''
+    fullName: '',
+    email: '',
+    confirmEmail: '',
+    emailGroup: '',
+    phone: '',
+    skillName: '',
+    experienceInYears: '',
+    proficiency: ''
   };
 
   constructor(private fb: FormBuilder) { }
@@ -57,7 +67,10 @@ export class CreateEmployeeComponent implements OnInit {
     this.employeeForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(10)]],
       contactPreference: ['email'],
-      email: ['', Validators.required],
+      emailGroup: this.fb.group({
+        email: ['', [Validators.required, CustoValidators.emailDomain('pragimtech.com')]],
+        confirmEmail: ['', Validators.required],
+      }, { validator: this.matchEmail }),
       phone: [''],
       skills: this.fb.group({
         skillName: ['', Validators.required],
@@ -66,11 +79,11 @@ export class CreateEmployeeComponent implements OnInit {
       })
     });
 
-    this.employeeForm.get('fullName').valueChanges.subscribe( value => {
+    this.employeeForm.get('fullName').valueChanges.subscribe(value => {
       console.log(value);
     });
-    this.employeeForm.valueChanges.subscribe( data => {
-     this.logValidationErrors(this.employeeForm);
+    this.employeeForm.valueChanges.subscribe(data => {
+      this.logValidationErrors(this.employeeForm);
     });
 
     this.employeeForm.get('contactPreference').valueChanges.subscribe((data: string) => {
@@ -107,7 +120,7 @@ export class CreateEmployeeComponent implements OnInit {
   logKeyValuePair(group: FormGroup) {
     Object.keys(group.controls).forEach((key: string) => {
       const abstractControl = group.get(key);
-      if ( abstractControl instanceof FormGroup) {
+      if (abstractControl instanceof FormGroup) {
         this.logKeyValuePair(abstractControl);
       } else {
         console.log('key = ' + key + ', value = ' + abstractControl.value);
@@ -118,23 +131,22 @@ export class CreateEmployeeComponent implements OnInit {
   logValidationErrors(group: FormGroup = this.employeeForm) {
     Object.keys(group.controls).forEach((key: string) => {
       const abstractControl = group.get(key);
-      if (abstractControl instanceof FormGroup) {
-        this.logValidationErrors(abstractControl);
-      } else {
-        this.formErrors[key] = '';
-        if (abstractControl && !abstractControl.valid && (abstractControl.touched || abstractControl.dirty)) {
-          const messages = this.validationMessages[key];
-          for (const errrorKey in abstractControl.errors) {
-            if (errrorKey) {
-              this.formErrors[key] += messages[errrorKey] + ' ';
-            }
+      this.formErrors[key] = '';
+      if (abstractControl && !abstractControl.valid && (abstractControl.touched || abstractControl.dirty)) {
+        const messages = this.validationMessages[key];
+        for (const errrorKey in abstractControl.errors) {
+          if (errrorKey) {
+            this.formErrors[key] += messages[errrorKey] + ' ';
           }
         }
+      }
+      if (abstractControl instanceof FormGroup) {
+        this.logValidationErrors(abstractControl);
       }
     });
   }
 
-  onDisableClick()  {
+  onDisableClick() {
     this.employeeForm.disable();
   }
 
@@ -148,5 +160,15 @@ export class CreateEmployeeComponent implements OnInit {
     }
 
     phoneControl.updateValueAndValidity();  // used to triger validation on control
+  }
+
+  matchEmail(group: AbstractControl): { [key: string]: any } | any {
+    const emailControl = group.get('email');
+    const confirmEmailControl = group.get('confirmEmail');
+    if (emailControl.value === confirmEmailControl.value || confirmEmailControl.pristine) {
+      return null;
+    } else {
+      return { emailMismatch: true };
+    }
   }
 }
