@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl, FormArray } from '@angular/forms';
 import { CustoValidators } from '../shared/custom.validators';
 
 @Component({
@@ -72,11 +72,7 @@ export class CreateEmployeeComponent implements OnInit {
         confirmEmail: ['', Validators.required],
       }, { validator: this.matchEmail }),
       phone: [''],
-      skills: this.fb.group({
-        skillName: ['', Validators.required],
-        experienceInYears: ['', Validators.required],
-        proficiency: ['', Validators.required]
-      })
+      skills: this.fb.array([this.addSkillFormGroup()])
     });
 
     this.employeeForm.get('fullName').valueChanges.subscribe(value => {
@@ -143,6 +139,14 @@ export class CreateEmployeeComponent implements OnInit {
       if (abstractControl instanceof FormGroup) {
         this.logValidationErrors(abstractControl);
       }
+
+      if (abstractControl instanceof FormArray) {
+        for (const control of abstractControl.controls) {
+          if (control instanceof FormGroup) {
+          this.logValidationErrors(control);
+          }
+        }
+      }
     });
   }
 
@@ -170,5 +174,17 @@ export class CreateEmployeeComponent implements OnInit {
     } else {
       return { emailMismatch: true };
     }
+  }
+
+  addSkillFormGroup(): FormGroup {
+    return this.fb.group({
+      skillName: ['', Validators.required],
+      experienceInYears: ['', Validators.required],
+      proficiency: ['', Validators.required]
+    });
+  }
+
+  addSkillButtonClick(): void {
+    (this.employeeForm.get('skills') as FormArray).push(this.addSkillFormGroup());
   }
 }
