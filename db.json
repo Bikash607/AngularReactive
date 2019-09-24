@@ -1,0 +1,42 @@
+{
+  "employees": [
+    {
+      "id": 1,
+      "fullName": "Bill",
+      "contactPreference": "email",
+      "email": "billgates@gmail.com",
+      "phone": "3445753214",
+      "skills": [
+        {
+          "skillName": "JAVA",
+          "experienceInYears": 20,
+          "proficiency": "advanced"
+        },
+        {
+          "skillName": "C#",
+          "experienceInYears": 2,
+          "proficiency": "beginer"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "fullName": "Mark",
+      "contactPreference": "email",
+      "email": "markjbg@pragimtech.com",
+      "phone": "6789043217",
+      "skills": [
+        {
+          "skillName": "SQL",
+          "experienceInYears": 10,
+          "proficiency": "advanced"
+        },
+        {
+          "skillName": "C#",
+          "experienceInYears": 2,
+          "proficiency": "beginer"
+        }
+      ]
+    }
+  ]
+}

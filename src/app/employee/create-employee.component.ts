@@ -1,6 +1,10 @@
+import { ISkill } from './ISkill';
+import { EmployeeService } from './../service/employee.service';
+import { IEmployee } from './IEmployee';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, AbstractControl, FormArray } from '@angular/forms';
 import { CustoValidators } from '../shared/custom.validators';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-create-employee',
@@ -10,6 +14,7 @@ import { CustoValidators } from '../shared/custom.validators';
 export class CreateEmployeeComponent implements OnInit {
 
   employeeForm: FormGroup;
+  panelTitle: string;
   validationMessages = {
     fullName: {
       required: 'Full Name is required.',
@@ -28,30 +33,13 @@ export class CreateEmployeeComponent implements OnInit {
     },
     emailGroup: {
       emailMismatch: 'Email and Confirm Email does not Match'
-    },
-    skillName: {
-      required: 'Skill Name is required.'
-    },
-    experienceInYears: {
-      required: 'Experience is required.'
-    },
-    proficiency: {
-      required: 'Proficiency is required.'
     }
   };
 
   formErrors = {
-    fullName: '',
-    email: '',
-    confirmEmail: '',
-    emailGroup: '',
-    phone: '',
-    skillName: '',
-    experienceInYears: '',
-    proficiency: ''
   };
 
-  constructor(private fb: FormBuilder) { }
+  constructor(private fb: FormBuilder, private route: ActivatedRoute, private employeeService: EmployeeService) { }
 
   ngOnInit() {
     /*this.employeeForm = new FormGroup({
@@ -84,6 +72,15 @@ export class CreateEmployeeComponent implements OnInit {
 
     this.employeeForm.get('contactPreference').valueChanges.subscribe((data: string) => {
       this.onContactPreferenceChange(data);
+    });
+
+    this.route.paramMap.subscribe((params) => {
+      const id = +params.get('id');
+      if (id) {
+        this.getEmployee(id);
+      } else {
+        this.panelTitle = 'Create Employee';
+      }
     });
   }
 
@@ -128,7 +125,7 @@ export class CreateEmployeeComponent implements OnInit {
     Object.keys(group.controls).forEach((key: string) => {
       const abstractControl = group.get(key);
       this.formErrors[key] = '';
-      if (abstractControl && !abstractControl.valid && (abstractControl.touched || abstractControl.dirty)) {
+      if (abstractControl && !abstractControl.valid && (abstractControl.touched || abstractControl.dirty || abstractControl.value !== '')) {
         const messages = this.validationMessages[key];
         for (const errrorKey in abstractControl.errors) {
           if (errrorKey) {
@@ -138,14 +135,6 @@ export class CreateEmployeeComponent implements OnInit {
       }
       if (abstractControl instanceof FormGroup) {
         this.logValidationErrors(abstractControl);
-      }
-
-      if (abstractControl instanceof FormArray) {
-        for (const control of abstractControl.controls) {
-          if (control instanceof FormGroup) {
-          this.logValidationErrors(control);
-          }
-        }
       }
     });
   }
@@ -169,7 +158,7 @@ export class CreateEmployeeComponent implements OnInit {
   matchEmail(group: AbstractControl): { [key: string]: any } | any {
     const emailControl = group.get('email');
     const confirmEmailControl = group.get('confirmEmail');
-    if (emailControl.value === confirmEmailControl.value || confirmEmailControl.pristine) {
+    if (emailControl.value === confirmEmailControl.value || (confirmEmailControl.pristine && confirmEmailControl.value === '')) {
       return null;
     } else {
       return { emailMismatch: true };
@@ -186,5 +175,49 @@ export class CreateEmployeeComponent implements OnInit {
 
   addSkillButtonClick(): void {
     (this.employeeForm.get('skills') as FormArray).push(this.addSkillFormGroup());
+  }
+
+  removeSkillButtonClick(skillGroupIndex: number): void {
+    const skillsFormArray = this.employeeForm.get('skills') as FormArray;
+    skillsFormArray.removeAt(skillGroupIndex);
+    skillsFormArray.markAsDirty();
+    skillsFormArray.markAsTouched();
+    console.log(this.employeeForm);
+  }
+
+  getEmployee(employeeId: number) {
+    this.employeeService.getEmployee(employeeId).subscribe((employee) => {
+      this.editEmployee(employee);
+    });
+  }
+
+  editEmployee(employee: IEmployee) {
+    this.employeeForm.patchValue({
+      fullName: employee.fullName,
+      contactPreference: employee.contactPreference,
+      emailGroup: {
+        email: employee.email,
+        confirmEmail: employee.email
+      },
+      phone: employee.phone
+    });
+
+    // replace existing control with new control (used to assign form array value)
+    this.employeeForm.setControl('skills', this.setExistingSkills(employee.skills));
+
+    this.panelTitle = 'Edit Employe';
+  }
+
+  setExistingSkills(skillSets: ISkill[]): FormArray {
+    const formArray = new FormArray([]);
+    skillSets.forEach((s) => {
+      formArray.push(this.fb.group({
+        skillName: s.skillName,
+        experienceInYears: s.experienceInYears,
+        proficiency: s.proficiency
+      }));
+    });
+
+    return formArray;
   }
 }
