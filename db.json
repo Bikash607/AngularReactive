@@ -2,20 +2,20 @@
   "employees": [
     {
       "id": 1,
-      "fullName": "Bill",
-      "contactPreference": "email",
-      "email": "billgates@gmail.com",
-      "phone": "3445753214",
+      "fullName": "adam",
+      "contactPreference": "phone",
+      "email": "adam@pragimtech.com",
+      "phone": "1111345678",
       "skills": [
         {
-          "skillName": "JAVA",
-          "experienceInYears": 20,
-          "proficiency": "advanced"
+          "skillName": "PYTHON",
+          "experienceInYears": "6",
+          "proficiency": "intermediate"
         },
         {
           "skillName": "C#",
-          "experienceInYears": 2,
-          "proficiency": "beginer"
+          "experienceInYears": "3",
+          "proficiency": "intermediate"
         }
       ]
     },
@@ -35,6 +35,25 @@
           "skillName": "C#",
           "experienceInYears": 2,
           "proficiency": "beginer"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "fullName": "henery",
+      "contactPreference": "email",
+      "email": "heneryjames@pragimtech.com",
+      "phone": "4664564554",
+      "skills": [
+        {
+          "skillName": "Painter",
+          "experienceInYears": "9",
+          "proficiency": "advanced"
+        },
+        {
+          "skillName": "Writer",
+          "experienceInYears": "10",
+          "proficiency": "advanced"
         }
       ]
     }

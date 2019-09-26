@@ -4,7 +4,7 @@ import { IEmployee } from './IEmployee';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, AbstractControl, FormArray } from '@angular/forms';
 import { CustoValidators } from '../shared/custom.validators';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-employee',
@@ -14,6 +14,7 @@ import { ActivatedRoute } from '@angular/router';
 export class CreateEmployeeComponent implements OnInit {
 
   employeeForm: FormGroup;
+  employee: IEmployee;
   panelTitle: string;
   validationMessages = {
     fullName: {
@@ -39,7 +40,7 @@ export class CreateEmployeeComponent implements OnInit {
   formErrors = {
   };
 
-  constructor(private fb: FormBuilder, private route: ActivatedRoute, private employeeService: EmployeeService) { }
+  constructor(private fb: FormBuilder, private route: ActivatedRoute, private employeeService: EmployeeService, private router: Router) { }
 
   ngOnInit() {
     /*this.employeeForm = new FormGroup({
@@ -77,18 +78,35 @@ export class CreateEmployeeComponent implements OnInit {
     this.route.paramMap.subscribe((params) => {
       const id = +params.get('id');
       if (id) {
+        this.panelTitle = 'Edit Employe';
         this.getEmployee(id);
       } else {
+        this.employee = {
+          id: null,
+          fullName: '',
+          contactPreference: '',
+          email: '',
+          phone: null,
+          skills: []
+        };
         this.panelTitle = 'Create Employee';
       }
     });
   }
 
   onSubmit(): void {
-    console.log(this.employeeForm.value);
-    console.log(this.employeeForm);
-    console.log(this.employeeForm.controls.fullName.touched);
-    console.log(this.employeeForm.get('email').value);
+    this.mapFormValuesToEmployeeModel();
+    if (this.employee.id) {
+      this.employeeService.updateEmployee(this.employee).subscribe(() =>
+        this.router.navigate(['list']),
+        (error) => console.log(error)
+      );
+    } else {
+      this.employeeService.addEmployee(this.employee).subscribe(
+        () => this.router.navigate(['list']),
+        (error) => console.log(error)
+      );
+    }
   }
 
   // patchValue can be used to set partial value where as set value can only be used to set entire form value
@@ -192,6 +210,7 @@ export class CreateEmployeeComponent implements OnInit {
   }
 
   editEmployee(employee: IEmployee) {
+    this.employee = employee;
     this.employeeForm.patchValue({
       fullName: employee.fullName,
       contactPreference: employee.contactPreference,
@@ -204,8 +223,6 @@ export class CreateEmployeeComponent implements OnInit {
 
     // replace existing control with new control (used to assign form array value)
     this.employeeForm.setControl('skills', this.setExistingSkills(employee.skills));
-
-    this.panelTitle = 'Edit Employe';
   }
 
   setExistingSkills(skillSets: ISkill[]): FormArray {
@@ -219,5 +236,13 @@ export class CreateEmployeeComponent implements OnInit {
     });
 
     return formArray;
+  }
+
+  mapFormValuesToEmployeeModel() {
+    this.employee.fullName = this.employeeForm.value.fullName;
+    this.employee.email = this.employeeForm.value.emailGroup.email;
+    this.employee.phone = this.employeeForm.value.phone;
+    this.employee.contactPreference = this.employeeForm.value.contactPreference;
+    this.employee.skills = this.employeeForm.value.skills;
   }
 }
