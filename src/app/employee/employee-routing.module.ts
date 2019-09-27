@@ -4,9 +4,9 @@ import { CreateEmployeeComponent } from './create-employee.component';
 import { ListEmployeesComponent } from './list-employees.component';
 
 const appRoutes: Routes = [
-  {path: 'list', component: ListEmployeesComponent},
-  {path: 'create', component: CreateEmployeeComponent},
-  {path: 'edit/:id', component: CreateEmployeeComponent},
+  { path: '', component: ListEmployeesComponent },
+  { path: 'create', component: CreateEmployeeComponent },
+  { path: 'edit/:id', component: CreateEmployeeComponent },
 ];
 
 @NgModule({
